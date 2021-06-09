@@ -23,26 +23,33 @@ exports.newProduct = catchAsyncErrors (async (req, res, next) => {
 
 exports.getProducts = catchAsyncErrors (async (req, res, next) => {
 
+     //return next(new ErrorHandler('my error', 400))
     const resPerPage = 4;
     const productsCount = await Product.countDocuments()
     const apiFeatures = new APIFeatures(Product.find(), req.query)
         .search()
         .filter()
-        .pagination(resPerPage)
+        
+    let products = await apiFeatures.query
+    let filteredProductsCount = products.length
 
-    const products = await apiFeatures.query
+    apiFeatures.pagination(resPerPage)
+    products = await apiFeatures.query
 
-    if(products.length === 0){
-        return  res.status(400).json({
-                success: false,
-                message: 'cannot get products from database'
-            })
-    }
+    //const products = await apiFeatures.query
+
+    // if(products.length === 0){
+    //     return  res.status(400).json({
+    //             success: false,
+    //             message: 'cannot get products from database'
+    //         })
+    // }
 
     res.status(200).json({
         success: true,
-        count: products.length,
         productsCount,
+        resPerPage,
+        filteredProductsCount,
         products
     })
 
