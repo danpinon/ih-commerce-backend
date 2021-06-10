@@ -5,20 +5,28 @@ const catchAsyncErrors = require('../middlewares/catchAsyncErrors')
 const sendToken = require('../utils/jwtToken')
 const sendEmail = require('../utils/sendEmail')
 const crypto = require('crypto')
+const cloudinary = require('cloudinary')
 
 //REGISTER USER = /api/v1/register
-exports.registerUser = catchAsyncErrors( async (req, res, next) => {
+exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 
-    const { name, email, password } = req.body
+    // const result = await cloudinary.v2.uploader.upload(req.body.avatar, {
+    //     folder: 'avatars',
+    //     width: 150,
+    //     crop: "scale"
+    // })
     
+
+    const { name, email, password } = req.body;
+    console.log(req.body)
     const user = await User.create({
         name,
         email,
         password,
-        avatar: {
-            public_id: '123',
-            url: 'https://i.redd.it/v0caqchbtn741.jpghttps://i.redd.it/v0caqchbtn741.jpg'
-        }
+        // avatar: {
+        //     public_id: result.public_id,
+        //     url: result.secure_url
+        // }
     })
 
     sendToken(user, 200, res)
@@ -160,6 +168,21 @@ exports.updateProfile = catchAsyncErrors (async (req, res, next) => {
     }
 
     //Update avatar: TO DO
+    if(req.body.avatar !== '') {
+        const user = await User.findById(req.user.id)
+        const image_id = user.avatar.public_id
+        const res =  await cloudinary.v2.uploader.destroy
+
+        const result = await cloudinary.v2.uploader.upload(req.body.avatar, {
+            folder: 'avatars',
+            width: 150,
+            crop: 'scale'
+        })
+        newUserData.avatar = {
+            public_id: result.public_id,
+            url: result.secure_url
+        }
+    }
 
     const user = await User.findByIdAndUpdate(
         req.user.id, 
