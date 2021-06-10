@@ -4,6 +4,7 @@ const app =  express()
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const fileUpload = require('express-fileupload')
+const cors = require('cors')
 
 
 const errorMiddleware = require('./middlewares/errors')
@@ -27,6 +28,7 @@ app.use('/api/v1', auth)
 app.use('/api/v1', order)
 
 //Middleware to handle errors
+app.use(cors())
 app.use(errorMiddleware)
 
 module.exports = app
