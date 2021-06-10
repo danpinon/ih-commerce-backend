@@ -144,18 +144,14 @@ exports.getUserProfile = catchAsyncErrors (async (req, res, next) => {
 exports.updatePassword = catchAsyncErrors (async (req, res, next) => {
     const user = await User.findById(req.user.id).select('+password');
 
-    //Check previous user password
+    // Check previous user password
     const isMatched = await user.comparePassword(req.body.oldPassword)
-    if(!isMatched) {
-        return next(new ErrorHandler('Old password is incorrect', 400))
+    if (!isMatched) {
+        return next(new ErrorHandler('Old password is incorrect'));
     }
 
-    if(req.body.oldPassword === req.body.password) {
-        return next(new ErrorHandler('Password must be different to previous password', 400))
-    }
-
-    user.password = req.body.password
-    await user.save()
+    user.password = req.body.password;
+    await user.save();
 
     sendToken(user, 200, res)
 })
